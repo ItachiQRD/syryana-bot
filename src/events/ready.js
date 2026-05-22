@@ -1,3 +1,4 @@
+import { generateDependencyReport } from '@discordjs/voice';
 import { ActivityType } from 'discord.js';
 import { BRAND, env } from '../config.js';
 import { startScheduler } from '../scheduler.js';
@@ -7,6 +8,7 @@ import { checkGuildSetup } from '../systems/guild-health.js';
 
 export async function onReady(client) {
   console.log(`✅ ${client.user.tag} — Bot Syryana en ligne`);
+  console.log('[voix]', generateDependencyReport().replaceAll('\n', ' | '));
   client.user.setActivity({
     name: `${BRAND.name} | /syryana`,
     type: ActivityType.Playing,

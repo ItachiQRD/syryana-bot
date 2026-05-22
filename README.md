@@ -10,7 +10,7 @@ Bot officiel pour le serveur **Syryana** : gamification, quiz culture générale
 - **Boutique** — pièces gagnées via l’XP, achats (boost, indices, etc.)
 - **Mini-défi** — `/defi` nombre mystère 1–20
 - **Bienvenue** — message embed brandé Syryana
-- **VIP** — multiplicateur XP si rôle configuré
+- **VIP** — multiplicateur XP + **lecteur musique** (`/musique`) en salon vocal (YouTube & liens directs)
 - **Vérification entrée** — questionnaire obligatoire (réponses exactes) avant accès au serveur
 - **Roue quotidienne** — `/roue` une fois par jour
 - **Duels** — `/duel @membre` quiz rapide 1v1
@@ -29,7 +29,7 @@ Bot officiel pour le serveur **Syryana** : gamification, quiz culture générale
 4. Active **MESSAGE CONTENT INTENT** et **SERVER MEMBERS INTENT**
 5. Onglet **OAuth2 → URL Generator** :
    - Scopes : `bot`, `applications.commands`
-   - Permissions : Send Messages, Embed Links, Use Slash Commands, Read Message History, Connect (vocaux)
+   - Permissions : Send Messages, Embed Links, Use Slash Commands, Read Message History, **Connect**, **Speak** (musique VIP)
 6. Invite le bot sur ton serveur avec l’URL générée
 
 ### 2. Configurer le projet
@@ -78,6 +78,22 @@ npm start
 | `/suggestion` | Envoyer une suggestion |
 | `/transfert` | Offrir des pièces |
 | `/stats` | Stats serveur |
+| `/musique jouer` | **VIP** — YouTube ou URL audio (en vocal) |
+| `/musique passer` | **VIP** — piste suivante |
+| `/musique arreter` | **VIP** — stop + vider la file |
+| `/musique file` | **VIP** — file d'attente |
+| `/musique en-cours` | **VIP** — piste actuelle |
+
+## Musique VIP (salons vocaux)
+
+1. Crée un rôle **VIP** sur Discord et copie son ID dans `VIP_ROLE_ID`
+2. Le membre VIP doit être **dans un salon vocal**
+3. Exemples :
+   - `/musique jouer requete:https://www.youtube.com/watch?v=...`
+   - `/musique jouer requete:Syryana playlist` (recherche YouTube)
+   - `/musique jouer requete:https://exemple.com/musique.mp3` (lien direct)
+
+> Sur **Render**, utilise **Node 22** (`NODE_VERSION=22.16.0`). FFmpeg est inclus via `ffmpeg-static`.
 
 ## Vérification à l'entrée
 

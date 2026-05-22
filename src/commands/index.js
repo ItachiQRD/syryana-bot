@@ -18,6 +18,7 @@ import { checkGuildSetup } from '../systems/guild-health.js';
 import { syryanaEmbed, successEmbed, errorEmbed } from '../utils/embeds.js';
 import { asPrivate } from '../utils/interactions.js';
 import { BRAND, env } from '../config.js';
+import { musicCommand, handleMusicCommand } from '../systems/music.js';
 
 export const commands = [
   new SlashCommandBuilder().setName('profil').setDescription('Voir ton profil Syryana (XP, niveau, pièces, série)')
@@ -61,6 +62,7 @@ export const commands = [
     .addUserOption((o) => o.setName('membre').setDescription('Autre membre (réservé admin/staff)')),
   new SlashCommandBuilder().setName('forcer-role').setDescription('Obtenir le rôle Non vérifié (test) ou pour un autre membre (admin)')
     .addUserOption((o) => o.setName('membre').setDescription('Autre membre (admin uniquement)')),
+  musicCommand,
 ].map((c) => c.toJSON());
 
 const challenges = new Map();
@@ -94,6 +96,7 @@ export async function handleCommand(interaction) {
   if (commandName === 'sync-verification') return cmdSyncVerification(interaction);
   if (commandName === 'reset-verification') return cmdResetVerification(interaction);
   if (commandName === 'forcer-role') return cmdForcerRole(interaction);
+  if (commandName === 'musique') return handleMusicCommand(interaction);
 }
 
 async function cmdProfil(interaction) {
@@ -182,6 +185,10 @@ async function cmdSyryana(interaction) {
       '**Communauté :**',
       '• `/classement` `/boutique` `/transfert`',
       '• `/sondage` `/suggestion`',
+      '',
+      '**VIP :**',
+      '• `/musique jouer` — lecteur YouTube & liens directs (salon vocal)',
+      '• `/musique passer` `arreter` `file` `en-cours`',
       '',
       'Nouveau ? Passe `/verifier` si tu n\'as pas encore accès.',
     ].join('\n'))],

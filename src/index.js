@@ -2,6 +2,7 @@ process.env.TZ = process.env.TZ || 'Europe/Paris';
 
 import './health-server.js';
 
+import sodium from 'libsodium-wrappers';
 import { Client, GatewayIntentBits, Partials } from 'discord.js';
 import { env } from './config.js';
 import { onReady } from './events/ready.js';
@@ -14,6 +15,8 @@ if (!env.token) {
   console.error('❌ DISCORD_TOKEN manquant. Copie .env.example vers .env');
   process.exit(1);
 }
+
+await sodium.ready;
 
 const client = new Client({
   intents: [

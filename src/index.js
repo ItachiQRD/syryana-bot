@@ -34,9 +34,25 @@ client.on('guildMemberAdd', onGuildMemberAdd);
 client.on('voiceStateUpdate', onVoiceStateUpdate);
 
 client.on('error', (err) => console.error('Erreur client Discord:', err));
+client.on('shardDisconnect', (_event, id) => console.warn(`[discord] Shard ${id} déconnecté — reconnexion…`));
+client.on('shardReconnecting', (id) => console.log(`[discord] Shard ${id} reconnecte…`));
+client.on('shardResume', (id) => console.log(`[discord] Shard ${id} reconnecté`));
 
 process.on('unhandledRejection', (err) => {
-  console.error('Promesse rejetée:', err);
+  console.error('Promesse rejetée (bot reste actif):', err);
 });
 
-client.login(env.token);
+process.on('uncaughtException', (err) => {
+  console.error('Exception non gérée:', err);
+});
+
+process.on('SIGTERM', () => {
+  console.log('🛑 Arrêt Render (redéploiement ou mise en veille)…');
+  client.destroy();
+  setTimeout(() => process.exit(0), 2000);
+});
+
+client.login(env.token).catch((err) => {
+  console.error('❌ Connexion Discord impossible:', err.message);
+  process.exit(1);
+});

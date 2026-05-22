@@ -39,6 +39,26 @@ Le bot inclut un **petit serveur web** (`health-server.js`) pour que Render ne l
 
 Sans ça, Render peut **endormir** le service et le bot se déconnecte.
 
+### Disque persistant (XP, quiz, vérification)
+
+Render → ton service → **Disks** → Add disk :
+- Mount path : `/app/data`
+- Size : 1 GB
+
+Variable d’environnement : `DATA_DIR` = `/app/data`
+
+### Le bot est « éteint » sur Discord ?
+
+| Cause | Solution |
+|-------|----------|
+| **Render en veille** (plan gratuit) | UptimeRobot sur l’URL du bot (toutes les 5 min) |
+| **Bot aussi lancé sur ton PC** | Arrête `npm start` local — un seul bot à la fois |
+| **Deploy échoué** | Render → **Logs** → cherche `❌` ou `npm error` |
+| **Token invalide** | Regénère le token sur le portail Discord, mets à jour `DISCORD_TOKEN` sur Render |
+| **Redémarrage** | Render → **Manual Deploy** → Deploy latest commit |
+
+Variables obligatoires sur Render : `DISCORD_TOKEN`, `CLIENT_ID`, `GUILD_ID`, `NODE_VERSION=22.16.0`, `PORT=3000`, `DATA_DIR=/app/data` (si disque).
+
 ---
 
 ## Option 2 — Oracle Cloud (100 % gratuit, plus technique)

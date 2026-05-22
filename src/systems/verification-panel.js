@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import { buildVerificationPanel } from './verification.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const dataDir = join(__dirname, '../../data');
+const dataDir = process.env.DATA_DIR || join(__dirname, '../../data');
 const PANEL_FILE = join(dataDir, 'verification-panel.json');
 
 mkdirSync(dataDir, { recursive: true });

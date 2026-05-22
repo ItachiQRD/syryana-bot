@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "start:prod": "node src/deploy-commands.js && node src/scripts/seed-quiz.js && node src/index.js",
+    "start:prod": "node src/deploy-commands.js; node src/scripts/seed-quiz.js; node src/index.js",
     "deploy-commands": "node src/deploy-commands.js",
     "seed-quiz": "node src/scripts/seed-quiz.js",
     "setup": "node src/scripts/setup-check.js"

@@ -3,12 +3,14 @@
 services:
   - type: web
     name: syryana-bot
-    runtime: docker
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm run start:prod
     plan: free
     healthCheckPath: /
     envVars:
+      - key: NODE_VERSION
+        value: "22.16.0"
       - key: NODE_ENV
         value: production
       - key: TZ

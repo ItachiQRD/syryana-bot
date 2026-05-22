@@ -21,10 +21,15 @@ Le bot inclut un **petit serveur web** (`health-server.js`) pour que Render ne l
 1. Code sur **GitHub** (voir `DEPLOY-24-7.md` étape 1)
 2. https://render.com → **New** → **Web Service** (pas Static Site)
 3. Connecte le repo `syryana-bot`
-4. **Environment** : ajoute toutes les variables du `.env`
-5. Ajoute aussi : `PORT` = `3000`
-6. **Start command** : `npm run start:prod`
-7. Plan : **Free**
+4. **Runtime** : **Node** (pas Docker si tu configures à la main)
+5. **Node version** : **22** (obligatoire — Node 26 casse `better-sqlite3`)
+   - Dans Render → **Environment** → `NODE_VERSION` = `22.16.0`
+   - Ou laisse le fichier `.nvmrc` du repo (contient `22`)
+6. **Environment** : ajoute toutes les variables du `.env`
+7. Ajoute aussi : `PORT` = `3000`
+8. **Build command** : `npm install`
+9. **Start command** : `npm run start:prod`
+10. Plan : **Free**
 
 ### Garder le bot réveillé (gratuit)
 

@@ -36,11 +36,15 @@ export async function onGuildMemberAdd(member) {
 
   await tryAssignUnverified(member);
 
+  const alreadyMember = env.memberRoleId && member.roles.cache.has(env.memberRoleId);
+  const needsVerification = env.unverifiedRoleId && member.roles.cache.has(env.unverifiedRoleId);
+  if (alreadyMember && !needsVerification) return;
+
   const verificationChannel = env.verificationChannelId
     ? member.guild.channels.cache.get(env.verificationChannelId)
     : null;
 
-  if (verificationChannel?.isTextBased()) {
+  if (verificationChannel?.isTextBased() && needsVerification) {
     // Un seul petit message — le panneau épinglé a le bouton Commencer
     await verificationChannel.send({
       content: [

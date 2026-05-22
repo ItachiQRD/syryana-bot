@@ -9,9 +9,10 @@ import {
   joinVoiceChannel,
   VoiceConnectionStatus,
 } from '@discordjs/voice';
+import ytdl from '@distube/ytdl-core';
 import { SlashCommandBuilder } from 'discord.js';
 import ffmpegPath from 'ffmpeg-static';
-import { Innertube } from 'youtubei.js';
+import yts from 'yt-search';
 import { env } from '../config.js';
 import { errorEmbed, successEmbed, syryanaEmbed } from '../utils/embeds.js';
 import { asPrivate } from '../utils/interactions.js';
@@ -25,27 +26,9 @@ const guildPlayers = new Map();
  * @typedef {Object} Track
  * @property {string} title
  * @property {string} url
- * @property {string} [videoId]
  * @property {string} requestedBy
  * @property {'youtube' | 'direct'} source
  */
-
-/** @type {import('youtubei.js').Innertube | null} */
-let youtubeClient = null;
-
-async function getYoutubeClient() {
-  if (!youtubeClient) youtubeClient = await Innertube.create();
-  return youtubeClient;
-}
-
-function extractVideoId(input) {
-  const m = input.trim().match(/(?:v=|\/shorts\/|youtu\.be\/)([\w-]{11})/);
-  return m?.[1] ?? null;
-}
-
-function isYoutubeUrl(input) {
-  return /youtube\.com|youtu\.be/i.test(input.trim());
-}
 
 /**
  * @typedef {Object} GuildMusicState
@@ -61,7 +44,7 @@ export const musicCommand = new SlashCommandBuilder()
   .addSubcommand((sc) => sc
     .setName('jouer')
     .setDescription('Lire par nom de chanson, lien YouTube ou URL audio directe')
-    .addStringOption((o) => o.setName('requete').setDescription('Ex: Syryana playlist, nom d\'artiste, lien YouTube ou .mp3').setRequired(true)))
+    .addStringOption((o) => o.setName('requete').setDescription('Ex: nom de chanson, artiste, lien YouTube ou .mp3').setRequired(true)))
   .addSubcommand((sc) => sc.setName('passer').setDescription('Passer la piste en cours'))
   .addSubcommand((sc) => sc.setName('arreter').setDescription('Arrêter la musique et vider la file'))
   .addSubcommand((sc) => sc.setName('file').setDescription('Voir la file d\'attente'))
@@ -89,83 +72,85 @@ function getVoiceChannel(member) {
   return { ok: true, channel: ch };
 }
 
+function extractVideoId(input) {
+  const m = input.trim().match(/(?:v=|\/shorts\/|youtu\.be\/)([\w-]{11})/);
+  return m?.[1] ?? null;
+}
+
+function isYoutubeUrl(input) {
+  return /youtube\.com|youtu\.be/i.test(input.trim());
+}
+
+function normalizeYoutubeUrl(input) {
+  const id = extractVideoId(input);
+  if (id) return `https://www.youtube.com/watch?v=${id}`;
+  if (isYoutubeUrl(input)) return input.trim();
+  return null;
+}
+
 function isDirectAudioUrl(input) {
   const t = input.trim();
   if (!/^https?:\/\//i.test(t)) return false;
   return !isYoutubeUrl(t);
 }
 
-function pickSearchVideo(search) {
-  const list = search?.videos ?? search?.results ?? [];
-  return list[0] ?? null;
-}
-
-function videoTitle(video, fallback) {
-  if (typeof video.title === 'string') return video.title;
-  return video.title?.text ?? video.title?.toString?.() ?? fallback;
-}
-
 async function resolveYoutube(input) {
-  const yt = await getYoutubeClient();
   const trimmed = input.trim();
-  const fromUrl = extractVideoId(trimmed);
+  let url = normalizeYoutubeUrl(trimmed);
+  let title = trimmed;
 
-  if (fromUrl) {
-    const info = await yt.getBasicInfo(fromUrl);
-    const title = info.basic_info?.title ?? 'YouTube';
-    return {
-      title,
-      url: `https://www.youtube.com/watch?v=${fromUrl}`,
-      videoId: fromUrl,
-      source: 'youtube',
-    };
+  if (!url) {
+    const search = await yts(trimmed);
+    const video = search.videos?.[0];
+    if (!video) throw new Error(`Aucun résultat pour « ${trimmed} ».`);
+    url = video.url;
+    title = video.title;
+  } else {
+    try {
+      const info = await ytdl.getInfo(url);
+      title = info.videoDetails.title ?? title;
+    } catch {
+      /* titre par défaut */
+    }
   }
 
-  if (isYoutubeUrl(trimmed)) {
+  if (!ytdl.validateURL(url)) {
     throw new Error('Lien YouTube invalide.');
   }
 
-  const search = await yt.search(trimmed, { type: 'Video' });
-  const video = pickSearchVideo(search);
-  if (!video) throw new Error(`Aucun résultat pour « ${trimmed} ».`);
-
-  const videoId = video.id ?? video.video_id;
-  if (!videoId) throw new Error('Impossible de lire cette vidéo.');
-
-  return {
-    title: videoTitle(video, trimmed),
-    url: `https://www.youtube.com/watch?v=${videoId}`,
-    videoId,
-    source: 'youtube',
-  };
+  return { title, url, source: 'youtube' };
 }
 
-async function createYoutubeResource(videoId) {
-  const yt = await getYoutubeClient();
-  const download = await yt.download(videoId, { type: 'audio', quality: 'best' });
-  const stream = download?.stream ?? download;
-  if (!stream || typeof stream.pipe !== 'function') {
-    throw new Error('Flux audio YouTube indisponible.');
-  }
+function createYoutubeResource(url) {
+  const stream = ytdl(url, {
+    filter: 'audioonly',
+    quality: 'highestaudio',
+    highWaterMark: 1 << 25,
+  });
+  stream.on('error', (err) => console.error('[musique ytdl]', err.message));
   return createAudioResource(stream, { inlineVolume: true });
 }
 
 function createDirectUrlResource(url) {
   if (!ffmpegPath) {
-    throw new Error('FFmpeg introuvable sur le serveur. Contacte un admin.');
+    throw new Error('FFmpeg introuvable sur le serveur.');
   }
   const ffmpeg = spawn(ffmpegPath, [
     '-re',
     '-i', url,
     '-analyzeduration', '0',
-    '-loglevel', '0',
+    '-loglevel', 'error',
     '-f', 's16le',
     '-ar', '48000',
     '-ac', '2',
     'pipe:1',
   ], { stdio: ['ignore', 'pipe', 'ignore'] });
 
-  ffmpeg.stderr?.on('data', () => {});
+  ffmpeg.stderr?.on('data', (chunk) => {
+    const line = chunk.toString().trim();
+    if (line) console.error('[musique ffmpeg]', line);
+  });
+
   return createAudioResource(ffmpeg.stdout, {
     inputType: StreamType.Raw,
     inlineVolume: true,
@@ -238,7 +223,7 @@ async function playTrack(guildId, track) {
   state.current = track;
 
   const resource = track.source === 'youtube'
-    ? await createYoutubeResource(track.videoId ?? extractVideoId(track.url))
+    ? await createYoutubeResource(track.url)
     : createDirectUrlResource(track.url);
 
   state.player.play(resource);
@@ -319,8 +304,12 @@ async function enqueue(interaction, input) {
       });
     } catch (err) {
       console.error('[musique] play:', err);
+      const msg = String(err.message ?? err);
+      const hint = msg.includes('bot') || msg.includes('Sign in')
+        ? 'YouTube bloque temporairement — réessaie dans quelques minutes ou utilise une **URL directe** .mp3.'
+        : msg;
       return interaction.editReply({
-        embeds: [errorEmbed('Lecture impossible. Vérifie le lien ou réessaie plus tard.')],
+        embeds: [errorEmbed(`Lecture impossible : ${hint}`)],
       });
     }
   }

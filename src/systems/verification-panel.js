@@ -1,3 +1,4 @@
+import { MessageFlags } from 'discord.js';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -53,7 +54,7 @@ export async function ensurePinnedPanel(channel, client) {
   }
 
   const panel = buildVerificationPanel();
-  const sent = await channel.send(panel);
+  const sent = await channel.send({ ...panel, flags: MessageFlags.SuppressNotifications });
   await sent.pin().catch(() => {});
   savePanelMeta(channel.id, sent.id, channel.guildId);
   return sent;

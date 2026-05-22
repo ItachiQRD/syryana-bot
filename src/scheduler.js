@@ -3,6 +3,7 @@ import { env, BRAND } from './config.js';
 import { startDailyQuiz } from './systems/quiz.js';
 import { getLeaderboard } from './db.js';
 import { syryanaEmbed } from './utils/embeds.js';
+import { silentPayload } from './utils/notify.js';
 
 export function startScheduler(client) {
   const quizCron = `${env.quizMinute} ${env.quizHour} * * *`;
@@ -47,25 +48,27 @@ export function startScheduler(client) {
         })
       );
 
-      await channel.send({
+      await channel.send(silentPayload({
         embeds: [syryanaEmbed(
           '📊 Classement hebdomadaire Syryana',
           `${lines.join('\n')}\n\nContinue à être actif — nouveau quiz chaque soir ! ${BRAND.emoji}`
         )],
-      });
+      }));
     });
     console.log('⏰ Récap classement : dimanche 12h');
   }
 
-  cron.schedule('0 10 * * *', async () => {
-    if (!env.quizChannelId) return;
-    const channel = await client.channels.fetch(env.quizChannelId).catch(() => null);
-    if (!channel?.isTextBased()) return;
-    await channel.send({
-      embeds: [syryanaEmbed(
-        '☀️ Rappel Syryana',
-        'N\'oublie pas `/quotidien` et prépare-toi pour le **quiz de ce soir** ! 🔥'
-      )],
-    }).catch(() => {});
-  });
+  if (env.dailyReminder && env.quizChannelId) {
+    cron.schedule('0 10 * * *', async () => {
+      const channel = await client.channels.fetch(env.quizChannelId).catch(() => null);
+      if (!channel?.isTextBased()) return;
+      await channel.send(silentPayload({
+        embeds: [syryanaEmbed(
+          '☀️ Rappel Syryana',
+          'N\'oublie pas `/quotidien` et prépare-toi pour le **quiz de ce soir** ! 🔥'
+        )],
+      })).catch(() => {});
+    });
+    console.log('⏰ Rappel quotidien 10h activé (ENABLE_DAILY_REMINDER=true)');
+  }
 }

@@ -48,6 +48,7 @@ export async function onGuildMemberAdd(member) {
         `Bienvenue sur **${BRAND.name}** ${BRAND.emoji}`,
         '👉 Lis le message **épinglé** et clique **Commencer**, ou tape `/verifier`.',
       ].join('\n'),
+      allowedMentions: { users: [member.id] },
     }).catch((e) => console.error('[verif] Ping accueil:', e.message));
     return;
   }

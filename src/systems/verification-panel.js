@@ -35,7 +35,7 @@ export async function ensurePinnedPanel(channel, client) {
   if (meta?.channelId === channel.id && meta.messageId) {
     const existing = await channel.messages.fetch(meta.messageId).catch(() => null);
     if (existing && hasStartButton(existing)) {
-      await existing.pin().catch(() => {});
+      if (!existing.pinned) await existing.pin().catch(() => {});
       return existing;
     }
   }
@@ -46,7 +46,7 @@ export async function ensurePinnedPanel(channel, client) {
       if (msg.author.id !== client.user.id) continue;
       if (hasStartButton(msg)) {
         savePanelMeta(channel.id, msg.id, channel.guildId);
-        await msg.pin().catch(() => {});
+        if (!msg.pinned) await msg.pin().catch(() => {});
         return msg;
       }
     }
@@ -83,17 +83,22 @@ export async function cleanupDuplicatePanels(channel, client, keepMessageId) {
   if (removed > 0) console.log(`[verif] ${removed} message(s) en double supprimé(s)`);
 }
 
-/** Met à jour le panneau épinglé (texte + bouton) */
+/** Met à jour le panneau épinglé sans reposter (évite les notifs à chaque redémarrage) */
 export async function refreshPinnedPanel(channel, client) {
-  const meta = loadPanelMeta();
-  if (meta?.messageId) {
-    const old = await channel.messages.fetch(meta.messageId).catch(() => null);
-    if (old) await old.delete().catch(() => {});
-  }
   const panel = buildVerificationPanel();
-  const sent = await channel.send(panel);
-  await sent.pin().catch(() => {});
-  savePanelMeta(channel.id, sent.id, channel.guildId);
-  await cleanupDuplicatePanels(channel, client, sent.id);
-  return sent;
+  const meta = loadPanelMeta();
+
+  if (meta?.channelId === channel.id && meta.messageId) {
+    const existing = await channel.messages.fetch(meta.messageId).catch(() => null);
+    if (existing && hasStartButton(existing)) {
+      await existing.edit(panel);
+      if (!existing.pinned) await existing.pin().catch(() => {});
+      await cleanupDuplicatePanels(channel, client, existing.id);
+      return existing;
+    }
+  }
+
+  const ensured = await ensurePinnedPanel(channel, client);
+  await cleanupDuplicatePanels(channel, client, ensured.id);
+  return ensured;
 }

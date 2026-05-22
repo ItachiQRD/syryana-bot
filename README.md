@@ -88,10 +88,12 @@ npm start
 
 1. Crée un rôle **VIP** sur Discord et copie son ID dans `VIP_ROLE_ID`
 2. Le membre VIP doit être **dans un salon vocal**
-3. Exemples :
+3. Exemples (tu peux mettre **juste le nom**, sans lien) :
+   - `/musique jouer requete:Bohemian Rhapsody`
    - `/musique jouer requete:https://www.youtube.com/watch?v=...`
-   - `/musique jouer requete:Syryana playlist` (recherche YouTube)
    - `/musique jouer requete:https://exemple.com/musique.mp3` (lien direct)
+
+> Le salon `#vérification` doit être visible **uniquement** par le rôle « Non vérifié », sinon tout le monde reçoit des notifs à chaque message.
 
 > Sur **Render**, utilise **Node 22** (`NODE_VERSION=22.16.0`). FFmpeg est inclus via `ffmpeg-static`.
 

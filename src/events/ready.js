@@ -3,7 +3,7 @@ import { ActivityType } from 'discord.js';
 import { BRAND, env } from '../config.js';
 import { startScheduler } from '../scheduler.js';
 import { loadVerificationConfig } from '../systems/verification.js';
-import { refreshPinnedPanel } from '../systems/verification-panel.js';
+import { ensurePinnedPanel } from '../systems/verification-panel.js';
 import { checkGuildSetup } from '../systems/guild-health.js';
 
 export async function onReady(client) {
@@ -31,9 +31,8 @@ export async function onReady(client) {
     const guild = client.guilds.cache.get(env.guildId);
     const channel = guild?.channels.cache.get(env.verificationChannelId);
     if (channel?.isTextBased()) {
-      loadVerificationConfig();
-      await refreshPinnedPanel(channel, client).catch(() => null);
-      console.log('📋 Panneau vérification mis à jour (1 message épinglé)');
+      await ensurePinnedPanel(channel, client).catch(() => null);
+      console.log('📋 Panneau vérification OK (existant conservé, pas de nouveau message)');
     }
   }
 }

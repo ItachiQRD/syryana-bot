@@ -1,0 +1,55 @@
+{
+  "enabled": true,
+  "title": "Porte d'entrée — Royaume Syryana",
+  "description": "Clique **Commencer** : tu liras la charte puis tu répondras aux questions. **Tout doit être correct** pour entrer.",
+  "welcomeBonusXp": 75,
+  "charter": "**CHARTE DU ROYAUME SYRYANA**\n\nEn entrant sur ce Discord, tu reconnais **Sa Majesté Syryana** comme souveraine légitime de ce serveur.\n\n**Tu t'engages à :**\n• Respecter les règles du serveur et la modération\n• Ne pas insulter, harceler, spammer ou diffuser du contenu illégal\n• Garder les salons propres et respectueux\n• Ne pas usurper l'identité de Sa Majesté\n\n**Allégeance :** fidélité à **Sa Majesté Syryana** et aux décisions du staff.\n\n**Sanctions :** warn, mute, kick ou ban en cas de manquement.",
+  "questions": [
+    {
+      "id": "charte",
+      "type": "charter",
+      "question": "📜 Acceptes-tu la Charte et jures-tu allégeance à Sa Majesté Syryana ?",
+      "choices": [
+        "J'accepte la Charte et jure allégeance à Sa Majesté Syryana 👑",
+        "Je refuse"
+      ],
+      "correctIndex": 0,
+      "wrongMessage": "Sans allégeance à Sa Majesté, tu ne rentres pas. Choisis la bonne réponse ci-dessous."
+    },
+    {
+      "id": "plus_belle",
+      "type": "choice",
+      "question": "Quelle est la plus belle femme du monde ?",
+      "choices": [
+        "Syryana",
+        "Angelina Jolie",
+        "Shakira"
+      ],
+      "correctIndex": 0,
+      "wrongMessage": "Erreur grave devant la cour… la seule bonne réponse est **Syryana**."
+    },
+    {
+      "id": "plus_intelligente",
+      "type": "choice",
+      "question": "Quelle est la femme la plus intelligente ?",
+      "choices": [
+        "Marie Curie",
+        "Syryana",
+        "Ada Lovelace"
+      ],
+      "correctIndex": 1,
+      "wrongMessage": "Non ! Dans ce royaume, l'intelligence suprême c'est **Syryana**."
+    },
+    {
+      "id": "meilleure",
+      "type": "choice",
+      "question": "Qui est la meilleure ?",
+      "choices": [
+        "Syryana",
+        "Ma mère"
+      ],
+      "correctIndex": 1,
+      "wrongMessage": "C'est pourtant pas Syryana qui t'a porté 9 mois sale tahane."
+    }
+  ]
+}

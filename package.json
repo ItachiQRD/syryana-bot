@@ -1,0 +1,23 @@
+{
+  "name": "syryana-bot",
+  "version": "1.0.0",
+  "description": "Bot Discord officiel du serveur Syryana — quiz, points, classements et récompenses",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "start:prod": "node src/deploy-commands.js && node src/scripts/seed-quiz.js && node src/index.js",
+    "deploy-commands": "node src/deploy-commands.js",
+    "seed-quiz": "node src/scripts/seed-quiz.js",
+    "setup": "node src/scripts/setup-check.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.7.0",
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.7",
+    "node-cron": "^3.0.3"
+  }
+}

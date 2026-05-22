@@ -1,0 +1,12 @@
+node_modules
+.env
+.env.*
+data
+*.db
+*.log
+.git
+.cursor
+terminals
+README.md
+PARTIE-3-A-FAIRE.md
+scripts/setup-part3.ps1

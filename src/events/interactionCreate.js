@@ -2,6 +2,7 @@ import { handleCommand } from '../commands/index.js';
 import { handleQuizAnswer } from '../systems/quiz.js';
 import { handleDuelAnswer } from '../systems/duel.js';
 import { handlePollVote } from '../systems/poll.js';
+import { handleSassouButton } from '../systems/sassou.js';
 import { errorEmbed } from '../utils/embeds.js';
 import { asPrivate } from '../utils/interactions.js';
 
@@ -23,6 +24,10 @@ export async function onInteractionCreate(interaction) {
       }
       if (interaction.customId.startsWith('poll:')) {
         await handlePollVote(interaction);
+        return;
+      }
+      if (interaction.customId.startsWith('sassou:')) {
+        await handleSassouButton(interaction);
         return;
       }
     }

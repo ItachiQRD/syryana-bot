@@ -11,6 +11,12 @@ import { syryanaEmbed, successEmbed, errorEmbed } from '../utils/embeds.js';
 import { asPrivate } from '../utils/interactions.js';
 import { BRAND, env } from '../config.js';
 import { musicCommand, handleMusicCommand } from '../systems/music.js';
+import {
+  sassouCommand,
+  sassouReloadCommand,
+  handleSassouCommand,
+  handleSassouReload,
+} from '../systems/sassou.js';
 
 export const commands = [
   new SlashCommandBuilder().setName('profil').setDescription('Voir ton profil Syryana (XP, niveau, pièces, série)')
@@ -43,6 +49,8 @@ export const commands = [
     .addIntegerOption((o) => o.setName('montant').setDescription('Nombre de pièces').setRequired(true).setMinValue(1).setMaxValue(500)),
   new SlashCommandBuilder().setName('diagnostic').setDescription('Vérifier rôles, permissions et quiz (admin)')
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
+  sassouCommand,
+  sassouReloadCommand.setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
   musicCommand,
 ].map((c) => c.toJSON());
 
@@ -72,6 +80,8 @@ export async function handleCommand(interaction) {
   if (commandName === 'transfert') return cmdTransfert(interaction);
   if (commandName === 'diagnostic') return cmdDiagnostic(interaction);
   if (commandName === 'musique') return handleMusicCommand(interaction);
+  if (commandName === 'sassou') return handleSassouCommand(interaction);
+  if (commandName === 'sassou-reload') return handleSassouReload(interaction);
 }
 
 async function cmdProfil(interaction) {
@@ -164,6 +174,9 @@ async function cmdSyryana(interaction) {
       '**VIP :**',
       '• `/musique jouer` — lecteur YouTube & liens directs (salon vocal)',
       '• `/musique passer` `arreter` `file` `en-cours`',
+      '',
+      '**Fun :**',
+      '• `/sassou` — question comique (Papa Sassou)',
     ].join('\n'))],
   }));
 }

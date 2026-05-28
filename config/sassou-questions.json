@@ -1,0 +1,116 @@
+{
+  "title": "Quiz comique — Papa Sassou",
+  "footer": "Clique une réponse : la chute s'affiche en message privé.",
+  "questions": [
+    {
+      "id": "age-officiel",
+      "question": "Quel âge officiel Papa Sassou affiche-t-il sur sa carte d'identité du rigolo ?",
+      "choices": [
+        {
+          "label": "25 ans, toujours jeune",
+          "response": "Non : sur la carte c'est écrit « depuis 1979 » dans la case âge."
+        },
+        {
+          "label": "Comme le vin, il se bonifie",
+          "response": "Le vin a une date de péremption. Lui, il a une date de **réélection**."
+        },
+        {
+          "label": "Âge : « oui »",
+          "response": "Exact. La case « non » a été rayée au stylo présidentiel."
+        },
+        {
+          "label": "Il ne vieillit pas, il se met à jour",
+          "response": "Comme Windows… sauf que là, personne n'a demandé le redémarrage."
+        }
+      ]
+    },
+    {
+      "id": "sport-national",
+      "question": "Quel sport national Papa Sassou a-t-il inventé ?",
+      "choices": [
+        {
+          "label": "Le marathon de campagne",
+          "response": "Presque. C'est le **sprint vers le 100 %** tous les cinq ans."
+        },
+        {
+          "label": "La levée de sanctions",
+          "response": "Bon sport d'endurance… surtout quand tu es ton propre arbitre."
+        },
+        {
+          "label": "Le jeu de rôle « Président »",
+          "response": "Le plus long one-man show d'Afrique centrale."
+        },
+        {
+          "label": "Le cache-cache avec l'opposition",
+          "response": "Spoiler : l'opposition est toujours « introuvable »."
+        }
+      ]
+    },
+    {
+      "id": "devise-pays",
+      "question": "Quelle devise figure sur le blason du Papa ?",
+      "choices": [
+        {
+          "label": "Unité, Travail, Progrès",
+          "response": "Version officielle. Version serveur : **Unité, Travail, Prolongation**."
+        },
+        {
+          "label": "Un mandat, ça suffit",
+          "response": "Belle devise… jamais appliquée au QG."
+        },
+        {
+          "label": "Plus on compte, plus on compte",
+          "response": "Mathématiques présidentielles : 1 + 1 + 1 = toujours lui."
+        },
+        {
+          "label": "« C'est pour votre bien »",
+          "response": "Phrase entendue avant chaque mauvaise nouvelle depuis 1997."
+        }
+      ]
+    },
+    {
+      "id": "animal-totem",
+      "question": "Quel animal totem représente le mieux Papa Sassou ?",
+      "choices": [
+        {
+          "label": "L'aigle",
+          "response": "Il plane… surtout au-dessus du calendrier électoral."
+        },
+        {
+          "label": "Le caméléon",
+          "response": "Change de costume, jamais de fin de mandat."
+        },
+        {
+          "label": "La tortue",
+          "response": "Lente ? Non. **Immortelle** en politique."
+        },
+        {
+          "label": "Le phénix",
+          "response": "Il renaît de ses cendres… à chaque élection surprise."
+        }
+      ]
+    },
+    {
+      "id": "reseau-social",
+      "question": "Sur quel réseau Papa Sassou est-il le plus actif ?",
+      "choices": [
+        {
+          "label": "Twitter / X",
+          "response": "Il tweete surtout des **résultats** déjà connus."
+        },
+        {
+          "label": "LinkedIn",
+          "response": "Profil : « Président depuis toujours » — pas de date de fin."
+        },
+        {
+          "label": "TikTok",
+          "response": "Danses protocolaires = trend éternel."
+        },
+        {
+          "label": "Le réseau « Vote pour moi »",
+          "response": "Le seul réseau où le bouton « j'aime » compte pour 100 %."
+        }
+      ]
+    }
+  ]
+}

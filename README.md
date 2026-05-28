@@ -79,6 +79,16 @@ npm start
 | `/musique arreter` | **VIP** — stop + vider la file |
 | `/musique file` | **VIP** — file d'attente |
 | `/musique en-cours` | **VIP** — piste actuelle |
+| `/sassou` | Question comique Papa Sassou (aléatoire ou `numero:`) |
+| `/sassou-reload` | Recharger les blagues depuis le JSON (admin) |
+
+## Quiz comique `/sassou`
+
+Édite **`config/sassou-questions.json`** avec tes blagues, puis `/sassou-reload` (ou redéploie).
+
+- `/sassou` — question aléatoire dans le salon
+- `/sassou numero:3` — question n°3
+- Les membres cliquent A/B/C/D → la **chute** s'affiche en message privé
 
 ## Musique VIP (salons vocaux)
 

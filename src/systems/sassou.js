@@ -105,13 +105,13 @@ export async function handleSassouCommand(interaction) {
   if (!question) {
     return interaction.reply(asPrivate({
       embeds: [errorEmbed(`Question #${num} introuvable. Il y en a **${cfg.questions.length}**.`)],
-    });
+    }));
   }
 
   if (!question.choices?.length) {
     return interaction.reply(asPrivate({
       embeds: [errorEmbed('Cette question n\'a pas de choix dans le JSON.')],
-    });
+    }));
   }
 
   await interaction.reply({
@@ -128,7 +128,7 @@ export async function handleSassouReload(interaction) {
   const cfg = loadSassouConfig();
   return interaction.reply(asPrivate({
     content: `✅ **${cfg.questions.length}** question(s) Sassou rechargée(s) depuis \`config/sassou-questions.json\`.`,
-  });
+  }));
 }
 
 export async function handleSassouButton(interaction) {

@@ -1,7 +1,6 @@
 import { tryMessageXp } from '../systems/xp.js';
 import { handleMessageForChallenge } from '../commands/index.js';
 import { checkLevelUp } from '../systems/levelUp.js';
-import { isPendingVerification } from '../systems/verification.js';
 
 export async function onMessageCreate(message) {
   if (message.author.bot) return;
@@ -12,8 +11,6 @@ export async function onMessageCreate(message) {
   }
 
   if (await handleMessageForChallenge(message)) return;
-
-  if (isPendingVerification(message.member)) return;
 
   const xpResult = tryMessageXp(message.member);
   if (xpResult) {

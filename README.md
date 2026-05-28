@@ -11,7 +11,6 @@ Bot officiel pour le serveur **Syryana** : gamification, quiz culture générale
 - **Mini-défi** — `/defi` nombre mystère 1–20
 - **Bienvenue** — message embed brandé Syryana
 - **VIP** — multiplicateur XP + **lecteur musique** (`/musique`) en salon vocal (YouTube & liens directs)
-- **Vérification entrée** — questionnaire obligatoire (réponses exactes) avant accès au serveur
 - **Roue quotidienne** — `/roue` une fois par jour
 - **Duels** — `/duel @membre` quiz rapide 1v1
 - **Sondages** — `/sondage` avec votes boutons
@@ -69,9 +68,6 @@ npm start
 | `/acheter` | Acheter un objet |
 | `/defi` | Mini-jeu nombre 1–20 |
 | `/quiz` | Lancer le quiz (admin) |
-| `/verifier` | Questionnaire d'entrée |
-| `/panel-verification` | Publier le panneau (admin) |
-| `/verification-reload` | Recharger les questions (admin) |
 | `/roue` | Roue de la fortune (1x/jour) |
 | `/duel` | Duel quiz 1v1 |
 | `/sondage` | Créer un sondage |
@@ -93,19 +89,7 @@ npm start
    - `/musique jouer requete:https://www.youtube.com/watch?v=...`
    - `/musique jouer requete:https://exemple.com/musique.mp3` (lien direct)
 
-> Le salon `#vérification` doit être visible **uniquement** par le rôle « Non vérifié », sinon tout le monde reçoit des notifs à chaque message.
-
 > Sur **Render**, utilise **Node 22** (`NODE_VERSION=22.16.0`). FFmpeg est inclus via `ffmpeg-static`.
-
-## Vérification à l'entrée
-
-Voir **`VERIFICATION.md`** pour le format des questions.
-
-1. Crée les rôles **Non vérifié** et **Membre**
-2. Le salon `#vérification` visible seulement par Non vérifié
-3. Remplis `data/verification-questions.json` (tu m'enverras le contenu plus tard)
-4. `/panel-verification` dans ce salon
-5. Les nouveaux membres passent `/verifier` — **mauvaise réponse = bloqué**
 
 ## Hébergement 24/7
 

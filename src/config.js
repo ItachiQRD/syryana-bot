@@ -48,15 +48,10 @@ export const env = {
   leaderboardChannelId: process.env.LEADERBOARD_CHANNEL_ID,
   suggestionsChannelId: process.env.SUGGESTIONS_CHANNEL_ID,
   vipRoleId: process.env.VIP_ROLE_ID,
-  unverifiedRoleId: process.env.UNVERIFIED_ROLE_ID,
   memberRoleId: process.env.MEMBER_ROLE_ID,
-  verificationChannelId: process.env.VERIFICATION_CHANNEL_ID,
   quizHour: Number(process.env.QUIZ_HOUR ?? 20),
   quizMinute: Number(process.env.QUIZ_MINUTE ?? 0),
-  /** Rappel quotidien 10h dans #quiz — désactivé par défaut (évite les notifs) */
   dailyReminder: process.env.ENABLE_DAILY_REMINDER === 'true',
-  /** Ne pas toucher au panneau #vérification au démarrage du bot */
-  skipVerificationPanelOnStart: process.env.SKIP_VERIFICATION_PANEL_ON_START !== 'false',
 };
 
 export function getLevelFromXp(xp) {

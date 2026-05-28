@@ -6,14 +6,6 @@ import { startDailyQuiz } from '../systems/quiz.js';
 import { spinDaily } from '../systems/spin.js';
 import { startDuel } from '../systems/duel.js';
 import { buildPoll } from '../systems/poll.js';
-import {
-  startVerification,
-  loadVerificationConfig,
-  getVerificationConfig,
-  syncUnverifiedRoles,
-  resetVerification,
-  retryUnverifiedRole,
-} from '../systems/verification.js';
 import { checkGuildSetup } from '../systems/guild-health.js';
 import { syryanaEmbed, successEmbed, errorEmbed } from '../utils/embeds.js';
 import { asPrivate } from '../utils/interactions.js';
@@ -37,11 +29,6 @@ export const commands = [
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
   new SlashCommandBuilder().setName('syryana').setDescription('Infos sur le serveur et comment gagner des points'),
   new SlashCommandBuilder().setName('defi').setDescription('Mini-défi : devine le nombre (1-20) pour des points bonus'),
-  new SlashCommandBuilder().setName('verifier').setDescription('Passer le questionnaire d\'entrée Syryana'),
-  new SlashCommandBuilder().setName('panel-verification').setDescription('Publier le panneau de vérification (admin)')
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
-  new SlashCommandBuilder().setName('verification-reload').setDescription('Recharger les questions depuis le fichier JSON (admin)')
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
   new SlashCommandBuilder().setName('roue').setDescription('Tourne la roue de la fortune (1x par jour)'),
   new SlashCommandBuilder().setName('duel').setDescription('Défier un membre en duel quiz rapide')
     .addUserOption((o) => o.setName('adversaire').setDescription('Qui défies-tu ?').setRequired(true)),
@@ -56,12 +43,6 @@ export const commands = [
     .addIntegerOption((o) => o.setName('montant').setDescription('Nombre de pièces').setRequired(true).setMinValue(1).setMaxValue(500)),
   new SlashCommandBuilder().setName('diagnostic').setDescription('Vérifier rôles, permissions et quiz (admin)')
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
-  new SlashCommandBuilder().setName('sync-verification').setDescription('Mettre Non vérifié à tous les membres pas encore validés (admin)')
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
-  new SlashCommandBuilder().setName('reset-verification').setDescription('Relancer la vérification (pour retester)')
-    .addUserOption((o) => o.setName('membre').setDescription('Autre membre (réservé admin/staff)')),
-  new SlashCommandBuilder().setName('forcer-role').setDescription('Obtenir le rôle Non vérifié (test) ou pour un autre membre (admin)')
-    .addUserOption((o) => o.setName('membre').setDescription('Autre membre (admin uniquement)')),
   musicCommand,
 ].map((c) => c.toJSON());
 
@@ -83,9 +64,6 @@ export async function handleCommand(interaction) {
   if (commandName === 'quiz') return cmdQuiz(interaction);
   if (commandName === 'syryana') return cmdSyryana(interaction);
   if (commandName === 'defi') return cmdDefi(interaction);
-  if (commandName === 'verifier') return startVerification(interaction);
-  if (commandName === 'panel-verification') return cmdPanelVerification(interaction);
-  if (commandName === 'verification-reload') return cmdVerificationReload(interaction);
   if (commandName === 'roue') return cmdRoue(interaction);
   if (commandName === 'duel') return cmdDuel(interaction);
   if (commandName === 'sondage') return cmdSondage(interaction);
@@ -93,9 +71,6 @@ export async function handleCommand(interaction) {
   if (commandName === 'stats') return cmdStats(interaction);
   if (commandName === 'transfert') return cmdTransfert(interaction);
   if (commandName === 'diagnostic') return cmdDiagnostic(interaction);
-  if (commandName === 'sync-verification') return cmdSyncVerification(interaction);
-  if (commandName === 'reset-verification') return cmdResetVerification(interaction);
-  if (commandName === 'forcer-role') return cmdForcerRole(interaction);
   if (commandName === 'musique') return handleMusicCommand(interaction);
 }
 
@@ -189,8 +164,6 @@ async function cmdSyryana(interaction) {
       '**VIP :**',
       '• `/musique jouer` — lecteur YouTube & liens directs (salon vocal)',
       '• `/musique passer` `arreter` `file` `en-cours`',
-      '',
-      'Nouveau ? Passe `/verifier` si tu n\'as pas encore accès.',
     ].join('\n'))],
   }));
 }
@@ -203,29 +176,6 @@ async function cmdDefi(interaction) {
       '🎲 Défi Syryana',
       'Nombre entre **1** et **20**. Envoie ta réponse **en message privé au bot** (MP) ou tape le nombre ici — seul toi verras mes réponses en MP.'
     )],
-  }));
-}
-
-async function cmdPanelVerification(interaction) {
-  const cfg = getVerificationConfig();
-  if (!cfg.questions?.length) {
-    return interaction.reply(asPrivate({
-      embeds: [errorEmbed('Ajoute des questions dans `config/verification-questions.json` d\'abord.')],
-    }));
-  }
-  await interaction.deferReply(asPrivate({}));
-  loadVerificationConfig();
-  const { refreshPinnedPanel } = await import('../systems/verification-panel.js');
-  await refreshPinnedPanel(interaction.channel, interaction.client);
-  return interaction.editReply({
-    embeds: [successEmbed('Panneau mis à jour, épinglé, doublons supprimés. Questions rechargées.')],
-  });
-}
-
-async function cmdVerificationReload(interaction) {
-  const cfg = loadVerificationConfig();
-  return interaction.reply(asPrivate({
-    embeds: [successEmbed(`Questions rechargées : **${cfg.questions?.length ?? 0}** question(s) actives.`)],
   }));
 }
 
@@ -278,15 +228,13 @@ async function cmdSuggestion(interaction) {
 
 async function cmdStats(interaction) {
   const guild = interaction.guild;
-  const cfg = getVerificationConfig();
   return interaction.reply(asPrivate({
     embeds: [syryanaEmbed('📈 Stats Syryana', [
       `**Membres :** ${guild.memberCount}`,
       `**Salons :** ${guild.channels.cache.size}`,
-      `**Questions vérification :** ${cfg.questions?.length ?? 0}`,
       `**Quiz en base :** actif`,
       '',
-      'Bot Syryana — gamification, quiz, vérification, duels.',
+      'Bot Syryana — gamification, quiz, duels, musique VIP.',
     ].join('\n'))],
   }));
 }
@@ -303,72 +251,6 @@ async function cmdDiagnostic(interaction) {
     '**Quiz auto** : le bot doit être **allumé** à l\'heure du quiz (20h par défaut). Pas besoin d\'être admin, seulement pouvoir écrire dans #quiz.',
   ];
   return interaction.reply(asPrivate({ embeds: [syryanaEmbed('Diagnostic Syryana', lines.join('\n'))] }));
-}
-
-async function cmdForcerRole(interaction) {
-  const target = interaction.options.getUser('membre') ?? interaction.user;
-  if (target.id !== interaction.user.id && !isStaff(interaction)) {
-    return interaction.reply(asPrivate({
-      embeds: [errorEmbed('Tu ne peux utiliser cette commande que sur **toi-même**.')],
-    }));
-  }
-
-  const member = await interaction.guild.members.fetch(target.id).catch(() => null);
-  if (!member) {
-    return interaction.reply(asPrivate({ embeds: [errorEmbed('Membre introuvable.')] }));
-  }
-
-  const result = await retryUnverifiedRole(member);
-  if (!result.ok) {
-    return interaction.reply(asPrivate({
-      embeds: [errorEmbed(
-        `Impossible d'attribuer le rôle.\n**Raison :** ${result.reason}\n→ Donne **Gérer les rôles** au bot et place **Syrbot** au-dessus de « Non vérifié ».`
-      )],
-    }));
-  }
-
-  return interaction.reply(asPrivate({
-    embeds: [successEmbed(`Rôle **Non vérifié** attribué à **${target.username}**.`)],
-  }));
-}
-
-async function cmdResetVerification(interaction) {
-  const target = interaction.options.getUser('membre') ?? interaction.user;
-  if (target.id !== interaction.user.id && !isStaff(interaction)) {
-    return interaction.reply(asPrivate({
-      embeds: [errorEmbed('Tu ne peux réinitialiser que **ta propre** vérification.')],
-    }));
-  }
-
-  const member = await interaction.guild.members.fetch(target.id).catch(() => null);
-  if (!member) {
-    return interaction.reply(asPrivate({ embeds: [errorEmbed('Membre introuvable.')] }));
-  }
-
-  await interaction.deferReply(asPrivate({}));
-  const result = await resetVerification(member);
-
-  if (!result.ok) {
-    return interaction.editReply({
-      embeds: [errorEmbed(
-        `Réinitialisation partielle pour **${target.username}**.\nRaison : ${result.reason ?? 'inconnue'}\nVérifie que le bot peut **Gérer les rôles** et est au-dessus de « Non vérifié ».`
-      )],
-    });
-  }
-
-  return interaction.editReply({
-    embeds: [successEmbed(
-      `**${target.username}** est de nouveau **Non vérifié**.\n→ Passe par #vérification ou \`/verifier\` pour retester.`
-    )],
-  });
-}
-
-async function cmdSyncVerification(interaction) {
-  await interaction.deferReply(asPrivate({}));
-  const { fixed, errors } = await syncUnverifiedRoles(interaction.guild);
-  return interaction.editReply({
-    embeds: [successEmbed(`Synchronisation terminée.\n**${fixed}** membre(s) ont reçu le rôle Non vérifié.\n**${errors}** erreur(s).`)],
-  });
 }
 
 async function cmdTransfert(interaction) {

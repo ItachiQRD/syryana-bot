@@ -1,32 +1,14 @@
+import { PermissionFlagsBits } from 'discord.js';
 import { syryanaEmbed } from '../utils/embeds.js';
 import { BRAND, env } from '../config.js';
-import { applyUnverifiedRole } from '../systems/verification.js';
 
 const recentJoins = new Map();
-
-async function tryAssignUnverified(member, attempt = 1) {
-  const result = await applyUnverifiedRole(member);
-  if (result.ok && !result.skipped) return true;
-
-  if (result.reason === 'no_manage_roles' || result.reason === 'role_hierarchy') {
-    if (attempt === 1) {
-      console.error('[verif] ⚠️ Donne au bot **Gérer les rôles** et place-le AU-DESSUS de « Non vérifié »');
-    }
-    return false;
-  }
-
-  if (attempt < 3) {
-    await new Promise((r) => setTimeout(r, attempt * 2000));
-    return tryAssignUnverified(member, attempt + 1);
-  }
-  return false;
-}
 
 export async function onGuildMemberAdd(member) {
   try {
     if (member.partial) await member.fetch();
   } catch (e) {
-    console.error('[verif] Impossible de charger le membre:', e.message);
+    console.error('[bienvenue] Impossible de charger le membre:', e.message);
   }
 
   const joinKey = `${member.guild.id}:${member.id}`;
@@ -34,27 +16,11 @@ export async function onGuildMemberAdd(member) {
   if (last && Date.now() - last < 30_000) return;
   recentJoins.set(joinKey, Date.now());
 
-  await tryAssignUnverified(member);
-
-  const alreadyMember = env.memberRoleId && member.roles.cache.has(env.memberRoleId);
-  const needsVerification = env.unverifiedRoleId && member.roles.cache.has(env.unverifiedRoleId);
-  if (alreadyMember && !needsVerification) return;
-
-  const verificationChannel = env.verificationChannelId
-    ? member.guild.channels.cache.get(env.verificationChannelId)
-    : null;
-
-  if (verificationChannel?.isTextBased() && needsVerification) {
-    // Un seul petit message — le panneau épinglé a le bouton Commencer
-    await verificationChannel.send({
-      content: [
-        `${member}`,
-        `Bienvenue sur **${BRAND.name}** ${BRAND.emoji}`,
-        '👉 Lis le message **épinglé** et clique **Commencer**, ou tape `/verifier`.',
-      ].join('\n'),
-      allowedMentions: { users: [member.id] },
-    }).catch((e) => console.error('[verif] Ping accueil:', e.message));
-    return;
+  if (env.memberRoleId) {
+    const role = member.guild.roles.cache.get(env.memberRoleId);
+    if (role && member.guild.members.me?.permissions.has(PermissionFlagsBits.ManageRoles)) {
+      await member.roles.add(role).catch(() => {});
+    }
   }
 
   const channelId = env.welcomeChannelId;
@@ -65,6 +31,17 @@ export async function onGuildMemberAdd(member) {
 
   await channel.send({
     content: `${member} ${BRAND.emoji}`,
-    embeds: [syryanaEmbed('Bienvenue', 'Configure `VERIFICATION_CHANNEL_ID` pour la vérification.')],
+    embeds: [syryanaEmbed(
+      `Bienvenue sur ${BRAND.name}`,
+      [
+        `Salut **${member.user.username}** ! ${BRAND.tagline}`,
+        '',
+        '• `/syryana` — guide du serveur',
+        '• `/quotidien` — récompense quotidienne',
+        '• `/profil` — ton XP et tes pièces',
+        '• Quiz du soir, duels, boutique… amuse-toi bien !',
+      ].join('\n')
+    )],
+    allowedMentions: { users: [member.id] },
   }).catch(() => {});
 }

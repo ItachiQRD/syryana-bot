@@ -2,7 +2,6 @@ import { generateDependencyReport } from '@discordjs/voice';
 import { ActivityType } from 'discord.js';
 import { BRAND, env } from '../config.js';
 import { startScheduler } from '../scheduler.js';
-import { loadVerificationConfig } from '../systems/verification.js';
 import { checkGuildSetup } from '../systems/guild-health.js';
 
 export async function onReady(client) {
@@ -13,7 +12,6 @@ export async function onReady(client) {
     type: ActivityType.Playing,
   });
 
-  loadVerificationConfig();
   startScheduler(client);
 
   if (env.guildId) {
@@ -26,12 +24,5 @@ export async function onReady(client) {
     }
   }
 
-  if (env.verificationChannelId && !env.skipVerificationPanelOnStart) {
-    console.log('📋 Panneau vérification : utilise /panel-verification si besoin (pas de message au démarrage)');
-  }
-
-  const guildCount = client.guilds.cache.size;
-  if (guildCount > 0) {
-    console.log(`📡 Connecté à ${guildCount} serveur(s). Arrête toute autre instance du bot (PC local + Render = doublons).`);
-  }
+  console.log(`📡 Connecté à ${client.guilds.cache.size} serveur(s). Une seule instance (Render OU PC local).`);
 }

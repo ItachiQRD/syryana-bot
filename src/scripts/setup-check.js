@@ -12,11 +12,10 @@ const required = [
 ];
 
 const recommended = [
-  'VERIFICATION_CHANNEL_ID',
-  'UNVERIFIED_ROLE_ID',
-  'MEMBER_ROLE_ID',
   'WELCOME_CHANNEL_ID',
   'QUIZ_CHANNEL_ID',
+  'MEMBER_ROLE_ID',
+  'VIP_ROLE_ID',
 ];
 
 console.log('\n🔍 Vérification configuration Syryana Bot\n');
@@ -37,7 +36,7 @@ for (const [key, test] of required) {
   }
 }
 
-console.log('\nRecommandé (vérification entrée + quiz) :');
+console.log('\nRecommandé :');
 for (const key of recommended) {
   const val = process.env[key];
   console.log(val ? `✅ ${key}` : `⚠️  ${key} — vide`);
